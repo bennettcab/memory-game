@@ -3,10 +3,6 @@ package bennett.chad.memorymatching;
 import android.app.Activity;
 import android.os.Bundle;
 
-/**
- * Created by bennettcab on 11/29/16.
- */
-
 public class SettingsActivity extends Activity {
 
     @Override

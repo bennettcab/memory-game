@@ -1,5 +1,6 @@
 package bennett.chad.memorymatching;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Reset", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.menu_settings:
-                Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

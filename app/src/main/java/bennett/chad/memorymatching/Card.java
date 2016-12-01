@@ -14,4 +14,7 @@ public class Card {
         return this.cardFrontResource;
     }
 
+    public int getBack() {
+        return this.cardBackResource;
+    }
 }

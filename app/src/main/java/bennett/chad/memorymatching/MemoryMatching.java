@@ -7,8 +7,9 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,13 +17,12 @@ import java.util.List;
 
 public class MemoryMatching extends Fragment {
 
-    private TextView cardsTextView;
     private SharedPreferences prefs;
-    private ImageView cardImageView;
+
+    private LinearLayout gameLayout;
+
     private List<Card> cards;
     private int[] gameSize;
-
-    private static final String TAG = "MemoryMatching";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,14 +36,17 @@ public class MemoryMatching extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_memory_matching, container, false);
+        final View view = inflater.inflate(R.layout.fragment_memory_matching, container, false);
 
-        cardsTextView = (TextView) view.findViewById(R.id.cards_text);
-        cardImageView = (ImageView) view.findViewById(R.id.card1);
+        gameLayout = (LinearLayout) view.findViewById(R.id.game_layout);
 
-        cardImageView.setImageResource(R.drawable.card_back);
-
-        reset();
+        view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                reset();
+            }
+        });
 
         return view;
     }
@@ -72,25 +75,30 @@ public class MemoryMatching extends Fragment {
     }
 
     public void displayCards() {
-        StringBuilder cardsString = new StringBuilder(cards.size());
-        int rowCount = 0;
+        gameLayout.removeAllViews();
 
-        for (int i = 0; i < cards.size(); i++) {
-            Card card = cards.get(i);
-            String separator;
-            rowCount++;
+        int cardWidth = gameLayout.getWidth() / gameSize[0];
+        int cardHeight = gameLayout.getHeight() / gameSize[1];
 
-            if (rowCount == gameSize[0]) {
-                separator = "\n";
-                rowCount = 0;
-            } else {
-                separator = " ";
+        for (int r = 0; r < gameSize[1]; r++) {
+            LinearLayout row = new LinearLayout(this.getContext());
+            gameLayout.addView(row);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.getLayoutParams().width = LinearLayout.LayoutParams.MATCH_PARENT;
+            row.getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            row.requestLayout();
+
+            for (int c = 0; c < gameSize[0]; c++) {
+                Card card = cards.get(r * gameSize[0] + c);
+                ImageView cardImage = new ImageView(this.getContext());
+
+                cardImage.setImageResource(card.getBack());
+                row.addView(cardImage);
+                cardImage.getLayoutParams().width = cardWidth;
+                cardImage.getLayoutParams().height = cardHeight;
+                cardImage.requestLayout();
             }
-
-            cardsString.append(Integer.toString(card.getValue()) + separator);
         }
-
-        cardsTextView.setText(cardsString);
     }
 
     public void reset() {

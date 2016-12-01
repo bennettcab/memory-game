@@ -1,6 +1,6 @@
 package bennett.chad.memorymatching;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -16,7 +16,6 @@ import java.util.List;
 
 public class MemoryMatching extends Fragment {
 
-    private TextView gameSizeTextView;
     private TextView cardsTextView;
     private SharedPreferences prefs;
     private ImageView cardImageView;
@@ -39,26 +38,28 @@ public class MemoryMatching extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_memory_matching, container, false);
 
-        gameSizeTextView = (TextView) view.findViewById(R.id.size_text);
         cardsTextView = (TextView) view.findViewById(R.id.cards_text);
         cardImageView = (ImageView) view.findViewById(R.id.card1);
 
-        gameSizeTextView.setText(prefs.getString("pref_game_size", "2x2"));
         cardImageView.setImageResource(R.drawable.card_back);
 
-        String[] gameSizeStrings = prefs.getString("pref_game_size", "2x2").split("x");
-        gameSize = new int[gameSizeStrings.length];
-        for (int i = 0; i < gameSizeStrings.length; i++) {
-            gameSize[i] = Integer.parseInt(gameSizeStrings[i]);
-        }
-
-        createCards();
-        displayCards();
+        reset();
 
         return view;
     }
 
-    public void createCards() {
+    public void setGameSize() {
+        String[] gameSizeStrings = prefs.getString("pref_game_size", "2x2").split("x");
+
+        gameSize = new int[gameSizeStrings.length];
+        for (int i = 0; i < gameSizeStrings.length; i++) {
+            gameSize[i] = Integer.parseInt(gameSizeStrings[i]);
+        }
+    }
+
+    public void setCards() {
+        cards.clear();
+
         int totalCards = gameSize[0] * gameSize[1];
 
         for (int i = 0; i < totalCards; i++) {
@@ -90,6 +91,12 @@ public class MemoryMatching extends Fragment {
         }
 
         cardsTextView.setText(cardsString);
+    }
+
+    public void reset() {
+        setGameSize();
+        setCards();
+        displayCards();
     }
 
 }

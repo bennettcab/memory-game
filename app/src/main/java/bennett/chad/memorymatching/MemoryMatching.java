@@ -7,18 +7,30 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MemoryMatching extends Fragment {
 
-    private TextView fragmentTextView;
+    private TextView gameSizeTextView;
+    private TextView cardsTextView;
     private SharedPreferences prefs;
+    private ImageView cardImageView;
+    private List<Card> cards;
+    private int[] gameSize;
+
+    private static final String TAG = "MemoryMatching";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        cards = new ArrayList<>();
 
         setHasOptionsMenu(true);
     }
@@ -27,13 +39,57 @@ public class MemoryMatching extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_memory_matching, container, false);
 
-        fragmentTextView = (TextView) view.findViewById(R.id.title_text_view);
+        gameSizeTextView = (TextView) view.findViewById(R.id.size_text);
+        cardsTextView = (TextView) view.findViewById(R.id.cards_text);
+        cardImageView = (ImageView) view.findViewById(R.id.card1);
 
-        String gameSize = prefs.getString("pref_game_size", "2x2");
+        gameSizeTextView.setText(prefs.getString("pref_game_size", "2x2"));
+        cardImageView.setImageResource(R.drawable.card_back);
 
-        fragmentTextView.setText(gameSize);
+        String[] gameSizeStrings = prefs.getString("pref_game_size", "2x2").split("x");
+        gameSize = new int[gameSizeStrings.length];
+        for (int i = 0; i < gameSizeStrings.length; i++) {
+            gameSize[i] = Integer.parseInt(gameSizeStrings[i]);
+        }
+
+        createCards();
+        displayCards();
 
         return view;
+    }
+
+    public void createCards() {
+        int totalCards = gameSize[0] * gameSize[1];
+
+        for (int i = 0; i < totalCards; i++) {
+            int cardValue = i < totalCards / 2 ? i : i - totalCards / 2;
+
+            cards.add(new Card(R.drawable.card_back, cardValue));
+        }
+
+        Collections.shuffle(cards);
+    }
+
+    public void displayCards() {
+        StringBuilder cardsString = new StringBuilder(cards.size());
+        int rowCount = 0;
+
+        for (int i = 0; i < cards.size(); i++) {
+            Card card = cards.get(i);
+            String separator;
+            rowCount++;
+
+            if (rowCount == gameSize[0]) {
+                separator = "\n";
+                rowCount = 0;
+            } else {
+                separator = " ";
+            }
+
+            cardsString.append(Integer.toString(card.getValue()) + separator);
+        }
+
+        cardsTextView.setText(cardsString);
     }
 
 }

@@ -1,20 +1,39 @@
 package bennett.chad.memorymatching;
 
-public class Card {
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.widget.ImageView;
 
-    private int cardBackResource;
-    private int cardFrontResource;
+import java.io.IOException;
+import java.io.InputStream;
 
-    public Card(int backImageResource, int frontImageResource) {
-        this.cardBackResource = backImageResource;
-        this.cardFrontResource = frontImageResource;
+public class Card extends ImageView {
+
+    private int back;
+    private String front;
+    private Drawable frontDrawable;
+
+    public Card(Context context, int backImage, String frontImage) {
+        super(context);
+
+        back = backImage;
+        front = frontImage;
+
+        super.setImageResource(backImage);
+
+        try (InputStream stream = context.getAssets().open("cards/" + front)) {
+            frontDrawable = Drawable.createFromStream(stream, front.replace(".png", ""));
+        } catch (IOException e) {
+            Log.e("Card", "Error loading image file name", e);
+        }
     }
 
-    public int getValue() {
-        return this.cardFrontResource;
+    public void show() {
+        setImageDrawable(frontDrawable);
     }
 
-    public int getBack() {
-        return this.cardBackResource;
+    public String getValue() {
+        return front;
     }
 }

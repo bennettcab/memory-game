@@ -11,7 +11,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         getFragmentManager().beginTransaction().replace(android.R.id.content, new SettingsFragment()).commit();
 
-        MemoryMatching game = (MemoryMatching) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
+        MainActivityFragment game = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
     }
 
 }

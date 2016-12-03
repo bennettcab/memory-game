@@ -11,8 +11,9 @@
     tools:context="bennett.chad.memorymatching.MainActivity">
 
     <fragment
-        android:name="bennett.chad.memorymatching.MemoryMatching"
+        android:name="bennett.chad.memorymatching.MainActivityFragment"
         android:id="@+id/main_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+    </fragment>
 </RelativeLayout>

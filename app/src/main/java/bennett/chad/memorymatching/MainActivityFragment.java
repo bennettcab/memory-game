@@ -1,21 +1,23 @@
 package bennett.chad.memorymatching;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MemoryMatching extends Fragment {
+public class MainActivityFragment extends Fragment {
 
     private SharedPreferences prefs;
 
@@ -23,6 +25,8 @@ public class MemoryMatching extends Fragment {
 
     private List<Card> cards;
     private int[] gameSize;
+
+    public static final String CARDS_ASSET_NAME = "cards";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,7 +40,7 @@ public class MemoryMatching extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_memory_matching, container, false);
+        final View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         gameLayout = (LinearLayout) view.findViewById(R.id.game_layout);
 
@@ -61,26 +65,49 @@ public class MemoryMatching extends Fragment {
     }
 
     public void setCards() {
-        cards.clear();
-
         int totalCards = gameSize[0] * gameSize[1];
 
-        for (int i = 0; i < totalCards; i++) {
-            int cardValue = i < totalCards / 2 ? i : i - totalCards / 2;
+        List<String> deckOfCards = getDeckOfCards();
+        Collections.shuffle(deckOfCards);
 
-            cards.add(new Card(R.drawable.card_back, cardValue));
+        cards.clear();
+
+        for (int i = 0; i < totalCards; i++) {
+            String cardValue = i < totalCards / 2 ? deckOfCards.get(i) : deckOfCards.get(i - totalCards / 2);
+
+            cards.add(new Card(getContext(), R.drawable.card_back, cardValue));
         }
 
         Collections.shuffle(cards);
     }
 
+    @NonNull
+    public List<String> getDeckOfCards() {
+        List<String> cardList = new ArrayList<>();
+
+        try {
+            String[] paths = getActivity().getAssets().list(CARDS_ASSET_NAME);
+
+            for (String path : paths) {
+                cardList.add(path);
+            }
+        } catch (IOException e) {
+            Log.e("MainActivityFragment", "Error loading image file names", e);
+        }
+
+        return cardList;
+    }
+
     public void displayCards() {
         gameLayout.removeAllViews();
 
-        int cardWidth = gameLayout.getWidth() / gameSize[0];
-        int cardHeight = gameLayout.getHeight() / gameSize[1];
+        int cols = gameSize[0];
+        int rows = gameSize[1];
 
-        for (int r = 0; r < gameSize[1]; r++) {
+        int cardWidth = gameLayout.getWidth() / cols;
+        int cardHeight = gameLayout.getHeight() / rows;
+
+        for (int r = 0; r < rows; r++) {
             LinearLayout row = new LinearLayout(this.getContext());
             gameLayout.addView(row);
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -88,15 +115,21 @@ public class MemoryMatching extends Fragment {
             row.getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
             row.requestLayout();
 
-            for (int c = 0; c < gameSize[0]; c++) {
-                Card card = cards.get(r * gameSize[0] + c);
-                ImageView cardImage = new ImageView(this.getContext());
+            for (int c = 0; c < cols; c++) {
+                Card card = cards.get(r * cols + c);
 
-                cardImage.setImageResource(card.getBack());
-                row.addView(cardImage);
-                cardImage.getLayoutParams().width = cardWidth;
-                cardImage.getLayoutParams().height = cardHeight;
-                cardImage.requestLayout();
+                row.addView(card);
+                card.getLayoutParams().width = cardWidth;
+                card.getLayoutParams().height = cardHeight;
+                card.requestLayout();
+
+                card.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Card card = (Card) view;
+                        card.show();
+                    }
+                });
             }
         }
     }

@@ -8,14 +8,14 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MemoryMatching game;
+    private MainActivityFragment game;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        game = (MemoryMatching) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
+        game = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment);
     }
 
     @Override

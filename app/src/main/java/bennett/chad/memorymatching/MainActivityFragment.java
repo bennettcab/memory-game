@@ -26,6 +26,8 @@ public class MainActivityFragment extends Fragment {
     private List<Card> cards;
     private int[] gameSize;
 
+    private Card unmatchedVisibleCard = null;
+
     public static final String CARDS_ASSET_NAME = "cards";
 
     @Override
@@ -75,7 +77,7 @@ public class MainActivityFragment extends Fragment {
         for (int i = 0; i < totalCards; i++) {
             String cardValue = i < totalCards / 2 ? deckOfCards.get(i) : deckOfCards.get(i - totalCards / 2);
 
-            cards.add(new Card(getContext(), R.drawable.card_back, cardValue));
+            cards.add(new Card(getContext(), R.drawable.card_back, cardValue, this));
         }
 
         Collections.shuffle(cards);
@@ -123,21 +125,39 @@ public class MainActivityFragment extends Fragment {
                 card.getLayoutParams().height = cardHeight;
                 card.requestLayout();
 
-                card.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Card card = (Card) view;
-                        card.show();
-                    }
-                });
             }
         }
+    }
+
+    public void setCardActions() {
+        for (Card card : cards) {
+            card.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Card card = (Card) view;
+
+                    if (card == getUnmatchedVisibleCard()) {
+                        return;
+                    }
+
+                    card.clicked();
+                }
+            });
+        }
+    }
+
+    public Card getUnmatchedVisibleCard() {
+        return unmatchedVisibleCard;
+    }
+
+    public void setUnmatchedVisibleCard(Card card) {
+        unmatchedVisibleCard = card;
     }
 
     public void reset() {
         setGameSize();
         setCards();
         displayCards();
+        setCardActions();
     }
-
 }

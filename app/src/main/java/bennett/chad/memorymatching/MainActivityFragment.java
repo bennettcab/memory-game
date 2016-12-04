@@ -25,8 +25,20 @@ public class MainActivityFragment extends Fragment {
 
     private List<Card> cards;
     private int[] gameSize;
+    private int revealTimeInMillis = 1000;
 
     private Card unmatchedVisibleCard = null;
+
+    public final View.OnClickListener cardListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (getUnmatchedVisibleCard() != null) {
+                removeAllCardActions();
+            }
+
+            ((Card) view).clicked();
+        }
+    };
 
     public static final String CARDS_ASSET_NAME = "cards";
 
@@ -129,20 +141,17 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-    public void setCardActions() {
+    public void setAllCardActions() {
         for (Card card : cards) {
-            card.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Card card = (Card) view;
+            if (!card.isMatched()) {
+                card.setOnClickListener(cardListener);
+            }
+        }
+    }
 
-                    if (card == getUnmatchedVisibleCard()) {
-                        return;
-                    }
-
-                    card.clicked();
-                }
-            });
+    public void removeAllCardActions() {
+        for (Card card : cards) {
+            card.setOnClickListener(null);
         }
     }
 
@@ -155,9 +164,14 @@ public class MainActivityFragment extends Fragment {
     }
 
     public void reset() {
+        unmatchedVisibleCard = null;
         setGameSize();
         setCards();
         displayCards();
-        setCardActions();
+        setAllCardActions();
+    }
+
+    public int getRevealTimeInMillis() {
+        return revealTimeInMillis;
     }
 }

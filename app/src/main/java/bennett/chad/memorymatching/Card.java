@@ -7,6 +7,7 @@ import android.widget.ImageView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import android.os.Handler;
 
 public class Card extends ImageView {
 
@@ -19,6 +20,8 @@ public class Card extends ImageView {
     private boolean shown = false;
     private boolean matched = false;
 
+    private Handler handler;
+
     public Card(Context context, int backImage, String frontImage, MainActivityFragment fragment) {
         super(context);
 
@@ -26,6 +29,8 @@ public class Card extends ImageView {
 
         back = backImage;
         front = frontImage;
+
+        handler = new Handler();
 
         super.setImageResource(backImage);
 
@@ -37,24 +42,36 @@ public class Card extends ImageView {
     }
 
     public void clicked() {
-        Card unmatchedVisibleCard = gameFragment.getUnmatchedVisibleCard();
+        final Card unmatchedVisibleCard = gameFragment.getUnmatchedVisibleCard();
+        final Card thisCard = this;
+
+        this.setOnClickListener(null);
+        show();
 
         if (unmatchedVisibleCard == null) {
-            show();
             gameFragment.setUnmatchedVisibleCard(this);
         }
-        else if (unmatchedVisibleCard.getValue().equals(front)) {
-            show();
+        else if (unmatchedVisibleCard.getValue().equals(getValue())) {
             matched = true;
-            this.setOnClickListener(null);
-            unmatchedVisibleCard.isMatched();
-            unmatchedVisibleCard.setOnClickListener(null);
+            unmatchedVisibleCard.setIsMatched();
             gameFragment.setUnmatchedVisibleCard(null);
+            gameFragment.setAllCardActions();
         }
         else {
-            hide();
-            unmatchedVisibleCard.hide();
-            gameFragment.setUnmatchedVisibleCard(null);
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("Card Clicked", "Cards don't match");
+
+                    thisCard.hide();
+                    unmatchedVisibleCard.hide();
+
+                    thisCard.gameFragment.setUnmatchedVisibleCard(null);
+                    thisCard.gameFragment.setAllCardActions();
+                }
+            };
+
+            handler.postDelayed(runnable, gameFragment.getRevealTimeInMillis());
         }
     }
 
@@ -74,6 +91,10 @@ public class Card extends ImageView {
 
     public boolean isShown() {
         return shown;
+    }
+
+    public void setIsMatched() {
+        matched = true;
     }
 
     public boolean isMatched() {

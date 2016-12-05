@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivityFragment extends Fragment {
 
@@ -28,6 +29,8 @@ public class MainActivityFragment extends Fragment {
     private List<Card> cards;
     private int[] gameSize;
     private int revealTimeInMillis = 1000;
+    private long gameStartTime;
+    private int incorrectGuesses;
 
     private Card unmatchedVisibleCard = null;
 
@@ -170,6 +173,8 @@ public class MainActivityFragment extends Fragment {
     }
 
     public void reset() {
+        gameStartTime = System.currentTimeMillis();
+        incorrectGuesses = 0;
         unmatchedVisibleCard = null;
         setGameSize();
         setCards();
@@ -179,6 +184,10 @@ public class MainActivityFragment extends Fragment {
 
     public int getRevealTimeInMillis() {
         return revealTimeInMillis;
+    }
+
+    public void addIncorrectGuess() {
+        incorrectGuesses++;
     }
 
     public boolean isGameOver () {
@@ -194,8 +203,29 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void gameOver() {
-        new AlertDialog.Builder(getContext()).setMessage("Good game! Here's your stats: ")
-            .setCancelable(false).setPositiveButton("PlayAgain", new DialogInterface.OnClickListener() {
+        long gameTimeMillis = System.currentTimeMillis() - gameStartTime;
+        long gameTimeHours = TimeUnit.MILLISECONDS.toHours(gameTimeMillis);
+        long gameTimeMinutes = TimeUnit.MILLISECONDS.toMinutes(gameTimeMillis) % TimeUnit.HOURS.toMinutes(1);
+        long gameTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(gameTimeMillis) % TimeUnit.MINUTES.toSeconds(1);
+        String hoursLabel = gameTimeHours == 1 ? "hour" : "hours";
+        String minutesLabel = gameTimeMinutes == 1 ? "minute" : "minutes";
+        String secondsLabel = gameTimeSeconds == 1 ? "second" : "seconds";
+        String gameTime;
+
+        if (gameTimeHours > 0) {
+            gameTime = String.format("%d " + hoursLabel + " %d " + minutesLabel + " %d " + secondsLabel, gameTimeHours, gameTimeMinutes, gameTimeSeconds);
+        }
+        else if (gameTimeMinutes > 0) {
+            gameTime = String.format("%d " + minutesLabel + " %d " + secondsLabel, gameTimeMinutes, gameTimeSeconds);
+        }
+        else {
+            gameTime = String.format("%d " + secondsLabel, gameTimeSeconds);
+        }
+
+        String timesLabel = incorrectGuesses == 1 ? "time" : "times";
+
+        new AlertDialog.Builder(getContext()).setMessage("Good game! You finished in " + gameTime + " and guessed incorrectly " + incorrectGuesses + " " + timesLabel + ".")
+            .setCancelable(false).setPositiveButton("Reset", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     reset();
                 }

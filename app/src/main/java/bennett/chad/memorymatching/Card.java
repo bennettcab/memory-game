@@ -71,6 +71,7 @@ public class Card extends ImageView {
                 }
             };
 
+            gameFragment.addIncorrectGuess();
             handler.postDelayed(runnable, gameFragment.getRevealTimeInMillis());
         }
     }

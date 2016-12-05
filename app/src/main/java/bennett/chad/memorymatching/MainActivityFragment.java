@@ -1,10 +1,12 @@
 package bennett.chad.memorymatching;
 
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +39,10 @@ public class MainActivityFragment extends Fragment {
             }
 
             ((Card) view).clicked();
+
+            if (isGameOver()) {
+                gameOver();
+            }
         }
     };
 
@@ -173,5 +179,26 @@ public class MainActivityFragment extends Fragment {
 
     public int getRevealTimeInMillis() {
         return revealTimeInMillis;
+    }
+
+    public boolean isGameOver () {
+        ArrayList<Card> matchedCards = new ArrayList<Card>();
+
+        for (Card card : cards) {
+            if (card.isMatched()) {
+                matchedCards.add(card);
+            }
+        }
+
+        return cards.size() == matchedCards.size();
+    }
+
+    private void gameOver() {
+        new AlertDialog.Builder(getContext()).setMessage("Good game! Here's your stats: ")
+            .setCancelable(false).setPositiveButton("PlayAgain", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    reset();
+                }
+        }).show();
     }
 }

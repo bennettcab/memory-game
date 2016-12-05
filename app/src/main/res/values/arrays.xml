@@ -10,4 +10,14 @@
         <item>4 x 4</item>
         <item>6 x 6</item>
     </string-array>
+    <string-array name="reveal_time_values">
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+    </string-array>
+    <string-array name="reveal_time_display">
+        <item>Half second</item>
+        <item>1 second</item>
+        <item>2 seconds</item>
+    </string-array>
 </resources>

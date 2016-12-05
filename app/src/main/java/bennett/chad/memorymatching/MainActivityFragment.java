@@ -28,7 +28,7 @@ public class MainActivityFragment extends Fragment {
 
     private List<Card> cards;
     private int[] gameSize;
-    private int revealTimeInMillis = 1000;
+    private int revealTimeInMillis;
     private long gameStartTime;
     private int incorrectGuesses;
 
@@ -78,7 +78,12 @@ public class MainActivityFragment extends Fragment {
         return view;
     }
 
-    public void setGameSize() {
+    public void setGameParams() {
+        gameStartTime = System.currentTimeMillis();
+        incorrectGuesses = 0;
+        unmatchedVisibleCard = null;
+        revealTimeInMillis = Integer.valueOf(prefs.getString("pref_reveal_time", "1000"));
+
         String[] gameSizeStrings = prefs.getString("pref_game_size", "2x2").split("x");
 
         gameSize = new int[gameSizeStrings.length];
@@ -173,10 +178,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     public void reset() {
-        gameStartTime = System.currentTimeMillis();
-        incorrectGuesses = 0;
-        unmatchedVisibleCard = null;
-        setGameSize();
+        setGameParams();
         setCards();
         displayCards();
         setAllCardActions();
@@ -222,9 +224,9 @@ public class MainActivityFragment extends Fragment {
             gameTime = String.format("%d " + secondsLabel, gameTimeSeconds);
         }
 
-        String timesLabel = incorrectGuesses == 1 ? "time" : "times";
+        String matchesLabel = incorrectGuesses == 1 ? "wrong match" : "wrong matches";
 
-        new AlertDialog.Builder(getContext()).setMessage("Good game! You finished in " + gameTime + " and guessed incorrectly " + incorrectGuesses + " " + timesLabel + ".")
+        new AlertDialog.Builder(getContext()).setMessage("Good game! You finished in " + gameTime + " and had " + incorrectGuesses + " " + matchesLabel + ".")
             .setCancelable(false).setPositiveButton("Reset", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     reset();

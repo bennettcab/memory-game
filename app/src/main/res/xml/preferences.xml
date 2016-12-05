@@ -8,4 +8,12 @@
         android:entries="@array/game_size_display"
         android:entryValues="@array/game_size_values"
         android:defaultValue="@string/game_size_default" />
+    <ListPreference
+        android:key="pref_reveal_time"
+        android:title="@string/reveal_time_title"
+        android:summary="@string/reveal_time_summary"
+        android:dialogTitle="@string/reveal_time_title"
+        android:entries="@array/reveal_time_display"
+        android:entryValues="@array/reveal_time_values"
+        android:defaultValue="1000" />
 </PreferenceScreen>
